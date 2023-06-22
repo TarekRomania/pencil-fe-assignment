@@ -1,0 +1,31 @@
+<div class="game-wrapper">
+  <div *ngIf="gameFinished" class="notifications-container">
+    <p class="game-ended-notification">
+      The Game Has Ended!
+    </p>
+
+    <button class="new-game-button" (click)="reset()">
+      Create New Game
+    </button>
+  </div>
+
+  <div class="boards-container">
+    <iframe
+      #white_board_iframe
+      src="http://localhost:4200/iframepage/?isWhite=true"
+      height="650"
+      width="650"
+      class="test"
+    >
+    </iframe>
+
+    <iframe
+      #black_board_iframe
+      src="http://localhost:4200/iframepage"
+      height="650"
+      width="650"
+      class="test"
+    >
+    </iframe>
+  </div>
+</div>
