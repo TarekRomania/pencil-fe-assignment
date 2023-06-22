@@ -1,14 +1,8 @@
-import {
-  Component,
-  EventEmitter,
-  Input,
-  NgZone,
-  Output,
-  ViewChild,
-} from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 import { NgxChessBoardView } from 'ngx-chess-board';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { HistoryMove } from 'ngx-chess-board/lib/history-move-provider/history-move';
+import { SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-board',
@@ -22,7 +16,7 @@ export class BoardComponent {
 
   @ViewChild('board', { static: false }) board!: NgxChessBoardView;
 
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute) {}
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
@@ -39,15 +33,15 @@ export class BoardComponent {
   }
 
   ngAfterViewInit() {
+    const currBoardState = localStorage.getItem('board');
+    if (currBoardState) {
+      this.board.setFEN(currBoardState);
+    }
+
     if (!this.isWhiteBoard) {
       setTimeout(() => {
         this.board.reverse();
       });
-    }
-
-    const currBoardState = localStorage.getItem('board');
-    if (currBoardState) {
-      this.board.setFEN(currBoardState);
     }
   }
 
@@ -58,6 +52,11 @@ export class BoardComponent {
 
   private handleResetEvent() {
     this.board.reset();
+
+    if (!this.isWhiteBoard) {
+      this.board.reverse();
+    }
+
     localStorage.clear();
   }
 
@@ -70,11 +69,7 @@ export class BoardComponent {
     }
   }
 
-  private getMainPageUrl(): string {
-    const relativeUrl = this.router.serializeUrl(
-      this.router.createUrlTree(['/mainpage'])
-    );
-
-    return window.location.origin + relativeUrl;
+  private getMainPageUrl(): SafeResourceUrl {
+    return `${window.location.origin}/mainpage`;
   }
 }

@@ -12,7 +12,7 @@
   <div class="boards-container">
     <iframe
       #white_board_iframe
-      src="http://localhost:4200/iframepage/?isWhite=true"
+      [src]="iFrameWhiteBoardUrl"
       height="650"
       width="650"
       class="test"
@@ -21,7 +21,7 @@
 
     <iframe
       #black_board_iframe
-      src="http://localhost:4200/iframepage"
+      [src]="iFrameBlackBoardUrl"
       height="650"
       width="650"
       class="test"

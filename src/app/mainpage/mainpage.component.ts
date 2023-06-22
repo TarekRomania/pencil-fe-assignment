@@ -1,5 +1,6 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-mainpage',
@@ -13,14 +14,20 @@ export class MainpageComponent {
   blackBoardIframe!: ElementRef<HTMLIFrameElement>;
 
   gameFinished = false;
+  iFrameWhiteBoardUrl: SafeResourceUrl = '';
+  iFrameBlackBoardUrl: SafeResourceUrl = '';
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private sanitizer: DomSanitizer) {}
+
+  ngOnInit() {
+    this.iFrameWhiteBoardUrl = this.getIframePageUrl(true);
+    this.iFrameBlackBoardUrl = this.getIframePageUrl();
+  }
 
   ngAfterViewInit() {
     window.addEventListener('message', (event) => {
       if (event.data.mate) {
         this.gameFinished = true;
-        return;
       }
 
       const lastTurnColor = event.data.color;
@@ -48,22 +55,25 @@ export class MainpageComponent {
 
     this.whiteBoardIframe.nativeElement.contentWindow?.postMessage(
       resetData,
-      this.getIframePageUrl()
+      this.iFrameWhiteBoardUrl
     );
 
     this.blackBoardIframe.nativeElement.contentWindow?.postMessage(
       resetData,
-      this.getIframePageUrl()
+      this.iFrameBlackBoardUrl
     );
 
     localStorage.clear();
   }
 
-  private getIframePageUrl(): string {
-    const relativeUrl = this.router.serializeUrl(
-      this.router.createUrlTree(['/iframepage'])
-    );
+  getIframePageUrl(isWhite: boolean = false): SafeResourceUrl {
+    const blackBoardUrl = `${window.location.origin}/iframepage`;
 
-    return window.location.origin + relativeUrl;
+    if (isWhite) {
+      const whiteBoardUrl = `${blackBoardUrl}/?isWhite=true`;
+      return this.sanitizer.bypassSecurityTrustResourceUrl(whiteBoardUrl);
+    } else {
+      return this.sanitizer.bypassSecurityTrustResourceUrl(blackBoardUrl);
+    }
   }
 }
